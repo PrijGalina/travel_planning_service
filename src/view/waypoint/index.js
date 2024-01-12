@@ -1,34 +1,54 @@
-import { createElement } from '../../render.js';
+/* eslint-disable indent */
 
-function createTemplate() {
+import { createElement } from '../../render.js';
+import { DESTINATIONS, WAYPOINT_TYPES, OFFERS } from '../../mock/waypoints.js';
+import { formatDateString, getDuration } from '../../utils.js';
+
+function createTemplate(waypoint) {
+  const cityName = DESTINATIONS.get(waypoint.destination).name;
+  const iconName = waypoint.type === WAYPOINT_TYPES.CheckIn ? 'check-in' : waypoint.type;
+  const dateFrom = waypoint.dateFrom;
+  const dateTo = waypoint.dateTo;
+  const [formattedDateFrom, serviceDateFrom, formattedTimeFrom, serviceTimeFrom] = formatDateString(dateFrom);
+  const [, , formattedTimeTo, serviceTimeTo] = formatDateString(dateTo);
+  const duration = getDuration(dateFrom, dateTo);
+  const offers = [];
+
+  waypoint.offers.map((id) => {
+    offers.push(OFFERS.get(id));
+  });
+
   return `
     <li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="2019-03-18">MAR 18</time>
+        <time class="event__date" datetime="${serviceDateFrom}">${formattedDateFrom}</time>
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${iconName}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">Taxi Amsterdam</h3>
+
+        <h3 class="event__title">${waypoint.type} ${cityName}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+            <time class="event__start-time" datetime="${serviceTimeFrom}">${formattedTimeFrom}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+            <time class="event__end-time" datetime="${serviceTimeTo}">${formattedTimeTo}</time>
           </p>
-          <p class="event__duration">30M</p>
+          <p class="event__duration">${duration}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">20</span>
+          &euro;&nbsp;<span class="event__price-value">${waypoint.basePrice}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          <li class="event__offer">
-            <span class="event__offer-title">Order Uber</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">20</span>
-          </li>
+        ${offers.map(
+          (item) => `<li class="event__offer">
+              <span class="event__offer-title">${item.title}</span>
+              &plus;&euro;&nbsp;
+              <span class="event__offer-price">${item.price}</span>
+            </li>`
+        )}
         </ul>
-        <button class="event__favorite-btn event__favorite-btn--active" type="button">
+        <button class="event__favorite-btn ${waypoint.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -43,8 +63,12 @@ function createTemplate() {
 }
 
 export default class Waypoint {
+  constructor({ waypoint }) {
+    this.waypoint = waypoint;
+  }
+
   getTemplate() {
-    return createTemplate();
+    return createTemplate(this.waypoint);
   }
 
   getElement() {
