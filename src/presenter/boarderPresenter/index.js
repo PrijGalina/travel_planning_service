@@ -1,26 +1,26 @@
 import { render } from '../../render.js';
 import Sorting from '../../view/sorting';
-import Waypoints from '../../view/waypoints';
+import RoutePointsList from '../../view/route-points-list';
+import RoutePoint from '../../view/route-point';
 import FormEdit from '../../view/form-edit';
-import Waypoint from '../../view/waypoint';
 
 export default class BoarderPresenter {
   sortComponent = new Sorting();
-  listComponent = new Waypoints();
+  listComponent = new RoutePointsList();
 
-  constructor({ boardContainer, waypointsModel }) {
+  constructor({ boardContainer, routePointsModel }) {
     this.container = boardContainer;
-    this.waypointsModel = waypointsModel;
+    this.routePointsModel = routePointsModel;
   }
 
   init() {
-    this.waypointsData = [...this.waypointsModel.getWaypoints()];
+    this.routePointsData = [...this.routePointsModel.getRoutePoints()];
     render(this.sortComponent, this.container);
     render(this.listComponent, this.container);
     render(new FormEdit(), this.listComponent.getElement());
 
-    for (let i = 0; i < this.waypointsData.length; i++) {
-      render(new Waypoint({ waypoint: this.waypointsData[i] }), this.listComponent.getElement());
+    for (let i = 0; i < this.routePointsData.length; i++) {
+      render(new RoutePoint({ point: this.routePointsData[i] }), this.listComponent.getElement());
     }
   }
 }

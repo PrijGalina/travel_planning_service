@@ -4,7 +4,7 @@ function createTemplate() {
   return '<ul class="trip-events__list"></ul>';
 }
 
-export default class Waypoints {
+export default class RoutePointsList {
   getTemplate() {
     return createTemplate();
   }
